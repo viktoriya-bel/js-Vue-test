@@ -1,11 +1,12 @@
 <template>
   <div id="app">
     <div>
+        <div>{{ usersObj }}</div>
       <b-form-input v-model="textSearch" placeholder="Поиск"></b-form-input>
       <div class="mt-2">Value: {{ textSearch }}</div>
     </div>
     <div>
-      <b-table small :fields="fields" :items="$parent.users | searchFilter" responsive="sm"  show-empty>
+      <b-table small :fields="fields" :items="$parent.users" responsive="sm"  show-empty>
         <div> </div>
         <template v-slot:cell(index)="date">
           {{  date.index + 1 }}
@@ -53,31 +54,20 @@ export default {
         { key: 'dob', label: 'Дата рождения'},
         { key: 'link-foto', label: 'Фото'},
       ],
-      textSearch: ''
+      textSearch: '',
+      usersObj: this.users
     }
   },
-  props:{
-    users: {
-      type: String
-    }
-  },
-  filters:{
-    searchFilter(value){
-      let tex = this.textSearch
-      console.log(tex)
-      console.log(value)
+  // props:['users'],
+  watch: {
+    textSearch: {
+      handler: function() {
+        console.log(this.textSearch)
+        console.log(this.users)
+      },
+      deep: true
     }
   }
-  // computed:{
-  //   users: function(){
-  //     var comp = this.company;
-  //     return this.phones.filter(function (elem) {
-  //
-  //       if(comp==='') return true;
-  //       else return elem.company.indexOf(comp) > -1;
-  //     })
-  //   }
-  // }
 }
 </script>
 
