@@ -55,15 +55,36 @@ export default {
         { key: 'link-foto', label: 'Фото'},
       ],
       textSearch: '',
-      usersObj: this.users
+      usersObj: 'users'
     }
   },
   // props:['users'],
   watch: {
     textSearch: {
       handler: function() {
-        console.log(this.textSearch)
-        console.log(this.users)
+        // console.log(this.textSearch)
+        // console.log(this.$root.users)
+        this.$root.users.filter(obj => {
+          let flag = false
+          Object.values(obj).forEach(() => {
+            const nameFirst = obj.name.first
+            const nameLast = obj.name.last
+            for (const valOb of this.textSearch) {
+              if (
+                      String(nameFirst.toLowerCase()).includes(valOb.toLowerCase()) ||
+                      String(nameLast.toLowerCase()).includes(valOb.toLowerCase())
+              ) {
+                flag = true
+                console.log(obj)
+                return
+              }
+            }
+            // console.log(obj)
+          })
+          if (flag) {
+            return obj
+          }
+        })
       },
       deep: true
     }
@@ -72,12 +93,5 @@ export default {
 </script>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
+
 </style>
