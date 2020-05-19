@@ -24,7 +24,7 @@ new Vue({
     .then(function (response) {
       vm.users = response.data;
       vm.users = vm.users.results
-      // console.log(vm.users)
+      console.log(vm.users)
     });
   }
 }).$mount('#app')
