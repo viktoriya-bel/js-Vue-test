@@ -64,9 +64,15 @@
       <label for="newLink">Ссылка на фото</label>
       <b-input type="url" id="newLink" v-model="newLink"></b-input>
     </b-modal>
-    <b-modal id="modal-prof-add" title="Добавить профессию" @ok.stop.prevent="profSave()">
+    <b-modal id="modal-prof-add" title="Добавить профессию">
+      <div>
+        <div v-for="item in profArr.profession" v-bind:key="item">
+          {{ item.title }}
+        </div>
+      </div>
       <label for="newProf">Введите новую профессию</label>
       <b-input type="text" id="newProf"></b-input>
+      <b-button pill variant="primary" v-on:click="profSave">Добавить профессию</b-button>
     </b-modal>
   </div>
 </template>
@@ -104,7 +110,19 @@ export default {
       newLast:'',
       newDate:'',
       newLink:'',
-      profArr: []
+      profArr: [{
+        profession: [
+          {
+            title: "Программист",
+            charge: [{ title: "Писать код" }, { title: "Отрастить бороду" }]
+          },
+          {
+            title: "Дизайнер",
+            charge: [{ title: "Рисовать" }, { title: "Придумывать" }]
+          }
+        ]
+      }
+      ]
     }
   },
   watch: {
