@@ -50,7 +50,7 @@
 
       </b-table>
     </div>
-<!--    <div>{{ usersObj }}</div>-->
+<!--    <div>{{ profArr[0].profession }}</div>-->
 <!--    <div>{{ usersObjFilter }}</div>-->
 <!--    <img alt="Vue logo" src="./assets/logo.png">-->
 <!--    <HelloWorld msg="Welcome to Your Vue.js App"/>-->
@@ -65,13 +65,25 @@
       <b-input type="url" id="newLink" v-model="newLink"></b-input>
     </b-modal>
     <b-modal id="modal-prof-add" title="Добавить профессию">
-      <div>
-        <div v-for="item in profArr.profession" v-bind:key="item">
-          {{ item.title }}
-        </div>
-      </div>
+      <b-table small :fields="fieldsProf" :items="profArr[0].profession" responsive="sm"  show-empty head-variant='dark'>
+        <div> </div>
+        <template v-slot:cell(index)="date">
+          {{  date.index + 1 }}
+        </template>
+
+        <template v-slot:cell(profession)="date">
+          {{ date.item.title }}
+        </template>
+
+        <template v-slot:cell(charge)="date">
+          <div v-for="charge in date.item.charge" v-bind:key="charge">
+            {{ charge.title }}
+          </div>
+        </template>
+
+      </b-table>
       <label for="newProf">Введите новую профессию</label>
-      <b-input type="text" id="newProf"></b-input>
+      <b-input type="text" v-model='newProf' id="newProf"></b-input>
       <b-button pill variant="primary" v-on:click="profSave">Добавить профессию</b-button>
     </b-modal>
   </div>
@@ -99,6 +111,11 @@ export default {
         { key: 'link-foto', label: 'Фото'},
         { key: 'delete', label: ''},
       ],
+      fieldsProf: [
+        { key: 'index', label: '№' },
+        { key: 'profession', label: 'Профессия' },
+        { key: 'charge', label: 'Обязанности' }
+      ],
       textSearch: '',
       usersObjFilter: this.$root.users,
       usersObj: this.$root.users,
@@ -122,7 +139,8 @@ export default {
           }
         ]
       }
-      ]
+      ],
+      newProf: ''
     }
   },
   watch: {
@@ -192,7 +210,21 @@ export default {
       })
     },
     profSave: function() {
-      
+      if (this.professionСheck(this.profArr, this.newProf)){
+        console.log("kj")
+      }
+    },
+    professionСheck: function (obj, val) {
+      let flagProf = false
+      if (obj) {
+        Object.keys(obj).map(function(objectKey) {
+          const title = String(obj[objectKey].title)
+          if (title.toUpperCase() === val.toUpperCase()) {
+            flagProf = true
+          }
+        })
+      }
+      return flagProf
     }
   }
 }
