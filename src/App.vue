@@ -76,9 +76,11 @@
         </template>
 
         <template v-slot:cell(charge)="date">
-          <div v-for="charge in date.item.charge" v-bind:key="charge">
+          <div v-for="charge in date.item.charge" v-bind:key="charge.title">
             {{ charge.title }}
           </div>
+          <div v-if="add === date.item && newChargeBool === true"><b-input type="text" v-model='newCharge' id="newProf"></b-input><b-icon-check-circle v-on:click="chargSave(date.item)"></b-icon-check-circle></div>
+          <b-icon-plus-square  v-on:click="chargeBool(date.item)" v-else></b-icon-plus-square>
         </template>
 
       </b-table>
@@ -91,7 +93,7 @@
 
 <script>
 // import HelloWorld from './components/HelloWorld.vue'
-import { BIconTrashFill, BIconPencil, BIconPersonPlusFill, BIconBagFill } from 'bootstrap-vue'
+import { BIconTrashFill, BIconPencil, BIconPersonPlusFill, BIconBagFill, BIconPlusSquare, BIconCheckCircle } from 'bootstrap-vue'
 export default {
   name: 'App',
   components: {
@@ -99,7 +101,9 @@ export default {
     BIconTrashFill,
     BIconPencil,
     BIconPersonPlusFill,
-    BIconBagFill
+    BIconBagFill,
+    BIconPlusSquare,
+    BIconCheckCircle
   },
   data() {
     return {
@@ -140,7 +144,10 @@ export default {
         ]
       }
       ],
-      newProf: ''
+      newProf: '',
+      newCharge:'',
+      newChargeBool: false,
+      add: ''
     }
   },
   watch: {
@@ -210,8 +217,10 @@ export default {
       })
     },
     profSave: function() {
-      if (this.professionСheck(this.profArr, this.newProf)){
-        console.log("kj")
+      if (this.professionСheck(this.profArr[0].profession, this.newProf) == false){
+        this.profArr[0].profession.push({
+          title: this.newProf
+        })
       }
     },
     professionСheck: function (obj, val) {
@@ -225,6 +234,26 @@ export default {
         })
       }
       return flagProf
+    },
+    chargSave: function(item) {
+      console.log(item)
+      this.add = item
+      this.newChargeBool = false
+      console.log(item.charge === undefined)
+      if (item.charge === undefined){
+        item.charge = {
+          title: this.newCharge
+        }
+      }
+      else {
+        item.charge.push({
+          title: this.newCharge
+        })
+      }
+    },
+    chargeBool: function(item) {
+      this.add = item
+      this.newChargeBool = true
     }
   }
 }
