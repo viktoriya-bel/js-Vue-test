@@ -45,7 +45,7 @@
 <!--          {{ date.item }}-->
           <b-button pill variant="outline-primary" v-on:click="editBool=false" v-if="editFirst === date.index && editBool === true">Сохранить</b-button>
           <b-icon-pencil v-on:click="editAll(date.index)" v-else></b-icon-pencil>
-          <b-icon-trash-fill v-on:click="deleteAll(date.item)"></b-icon-trash-fill>
+          <b-icon-trash-fill v-on:click="deleteAll(date.item, usersObjFilter)"></b-icon-trash-fill>
         </template>
 
       </b-table>
@@ -78,8 +78,9 @@
         <template v-slot:cell(charge)="date">
           <div v-for="charge in date.item.charge" v-bind:key="charge.title">
             {{ charge.title }}
+            <b-icon-trash-fill v-on:click="deleteAll(charge, date.item.charge)"></b-icon-trash-fill>
           </div>
-          <div v-if="add === date.item && newChargeBool === true"><b-input type="text" v-model='newCharge' id="newProf"></b-input><b-icon-check-circle v-on:click="chargSave(date.item)"></b-icon-check-circle></div>
+          <div v-if="add === date.item.title && newChargeBool === true"><b-input type="text" v-model='newCharge' id="newProf"></b-input><b-icon-check-circle v-on:click="chargSave(date.item)"></b-icon-check-circle></div>
           <b-icon-plus-square  v-on:click="chargeBool(date.item)" v-else></b-icon-plus-square>
         </template>
 
@@ -188,16 +189,16 @@ export default {
     }
   },
   methods: {
-    deleteAll: function (item) {
+    deleteAll: function (item, obj) {
       let i=0
       let index=0
-      this.usersObj.forEach(function(itemObj) {
+      obj.forEach(function(itemObj) {
         if (itemObj===item){
           index=i
         }
         i++
       })
-      this.usersObj.splice(index, 1)
+      obj.splice(index, 1)
     },
     editAll:function (item) {
       this.editBool = true
@@ -219,8 +220,10 @@ export default {
     profSave: function() {
       if (this.professionСheck(this.profArr[0].profession, this.newProf) == false){
         this.profArr[0].profession.push({
-          title: this.newProf
+          title: this.newProf,
+          charge: [{ title: "" }]
         })
+        this.newProf = ''
       }
     },
     professionСheck: function (obj, val) {
@@ -236,23 +239,20 @@ export default {
       return flagProf
     },
     chargSave: function(item) {
-      console.log(item)
       this.add = item
       this.newChargeBool = false
-      console.log(item.charge === undefined)
-      if (item.charge === undefined){
-        item.charge = {
-          title: this.newCharge
-        }
+      if (item.charge.title === ''){
+        item.charge.title = this.newCharge
       }
       else {
         item.charge.push({
           title: this.newCharge
         })
       }
+      this.newCharge = ''
     },
     chargeBool: function(item) {
-      this.add = item
+      this.add = item.title
       this.newChargeBool = true
     }
   }
