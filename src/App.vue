@@ -1,9 +1,9 @@
 <template>
   <div id="app">
-    <div>
+    <div class="head">
       <b-form-input v-model="textSearch" placeholder="Поиск"></b-form-input>
 <!--      <div class="mt-2">Value: {{ textSearch }}</div>-->
-      <div>
+      <div class="head__but">
         <b-button pill variant="primary" v-on:click="personAdd()"><b-icon-person-plus-fill></b-icon-person-plus-fill></b-button>
         <b-button pill variant="primary" v-on:click="profAdd()"><b-icon-bag-fill></b-icon-bag-fill></b-button>
       </div>
@@ -41,7 +41,14 @@
           <b-avatar variant="secondary" v-else></b-avatar>
         </template>
 
-        <template v-slot:cell(delete)="date">
+        <template v-slot:cell(prof)="date">
+          <div v-if="date.item.profession === undefined">Безработный</div>
+          <div v-else  v-for="item in  date.item.profession" v-bind:key="item.title">{{ item.title }}</div>
+          <b-icon-window v-on:click="profPeople(date.item)"></b-icon-window>
+        </template>
+
+
+        <template v-slot:cell(delete)="date" class="table__but">
 <!--          {{ date.item }}-->
           <b-button pill variant="outline-primary" v-on:click="editBool=false" v-if="editFirst === date.index && editBool === true">Сохранить</b-button>
           <b-icon-pencil v-on:click="editAll(date.index)" v-else></b-icon-pencil>
@@ -73,28 +80,68 @@
 
         <template v-slot:cell(profession)="date">
           {{ date.item.title }}
+          <b-form-input v-model.lazy="date.item.title" v-if="editFirst === date.item.title && editBool === true"></b-form-input>
         </template>
 
         <template v-slot:cell(charge)="date">
           <div v-for="charge in date.item.charge" v-bind:key="charge.title">
             {{ charge.title }}
-            <b-icon-trash-fill v-on:click="deleteAll(charge, date.item.charge)"></b-icon-trash-fill>
+            <b-icon-trash-fill v-on:click="deleteAll(charge, date.item.charge)" v-if="charge.title != ''"></b-icon-trash-fill>
           </div>
-          <div v-if="add === date.item.title && newChargeBool === true"><b-input type="text" v-model='newCharge' id="newProf"></b-input><b-icon-check-circle v-on:click="chargSave(date.item)"></b-icon-check-circle></div>
-          <b-icon-plus-square  v-on:click="chargeBool(date.item)" v-else></b-icon-plus-square>
+          <div class="charge__add-input" v-if="add === date.item.title && newChargeBool === true"><b-input type="text" v-model='newCharge' id="newProf"></b-input><b-icon-check-circle class="charge__add-input-icon" v-on:click="chargSave(date.item)"></b-icon-check-circle></div>
+          <b-icon-plus-square v-on:click="chargeBool(date.item)" v-else></b-icon-plus-square>
+        </template>
+        <template v-slot:cell(del)="date"  class="table__but">
+          <b-button pill variant="outline-primary" v-on:click="editBool=false" v-if="editFirst === date.item.title && editBool === true">Сохранить</b-button>
+          <b-icon-pencil v-on:click="editAll(date.item.title)" v-else></b-icon-pencil>
+            <b-icon-trash-fill v-on:click="deleteAll(date.item, profArr[0].profession)"></b-icon-trash-fill>
         </template>
 
       </b-table>
       <label for="newProf">Введите новую профессию</label>
       <b-input type="text" v-model='newProf' id="newProf"></b-input>
-      <b-button pill variant="primary" v-on:click="profSave">Добавить профессию</b-button>
+      <b-button pill variant="primary" v-on:click="profSave(profArr[0], newProf)" class="modal__btn-add">Добавить профессию</b-button>
+      <div class="errorText" v-if="errorText">Такая запись уже есть!</div>
+    </b-modal>
+    <b-modal id="modal-prof-people" title="Добавить профессию">
+      <b-table id="modal-prof-people-table" small :fields="fieldsProf" :items="profPeopleArr.profession" responsive="sm"  show-empty head-variant='dark'>
+        <div> </div>
+        <template v-slot:cell(index)="date">
+          {{  date.index + 1 }}
+        </template>
+
+        <template v-slot:cell(profession)="date">
+          {{ date.item.title }}
+        </template>
+
+        <template v-slot:cell(charge)="date">
+          <div v-for="prof in profArr[0].profession" v-bind:key="prof.title">
+            <div v-if="prof.title === date.item.title">
+              <div v-for="charge in prof.charge" v-bind:key="charge.title">
+                {{ charge.title }}
+              </div>
+            </div>
+          </div>
+
+        </template>
+        <template v-slot:cell(del)="date">
+          <b-icon-trash-fill v-on:click="deleteAll(date.item, profPeopleArr.profession)"></b-icon-trash-fill>
+        </template>
+
+      </b-table>
+      <label for="newProf">Выберите профессию</label>
+      <b-form-select v-model="selectedProf" :options="profArr[0].profession.title">
+        <b-form-select-option v-for="item in profArr[0].profession" v-bind:key="item.title" v-bind:value="item.title">{{ item.title }}</b-form-select-option>
+      </b-form-select>
+      <b-button pill variant="primary" v-on:click="profSave(profPeopleArr, selectedProf)" class="modal__btn-add">Добавить</b-button>
+      <div class="errorText" v-if="errorText">Такая запись уже есть!</div>
     </b-modal>
   </div>
 </template>
 
 <script>
 // import HelloWorld from './components/HelloWorld.vue'
-import { BIconTrashFill, BIconPencil, BIconPersonPlusFill, BIconBagFill, BIconPlusSquare, BIconCheckCircle } from 'bootstrap-vue'
+import { BIconTrashFill, BIconPencil, BIconPersonPlusFill, BIconBagFill, BIconPlusSquare, BIconCheckCircle, BIconWindow } from 'bootstrap-vue'
 export default {
   name: 'App',
   components: {
@@ -104,7 +151,8 @@ export default {
     BIconPersonPlusFill,
     BIconBagFill,
     BIconPlusSquare,
-    BIconCheckCircle
+    BIconCheckCircle,
+    BIconWindow
   },
   data() {
     return {
@@ -114,12 +162,14 @@ export default {
         { key: 'name-last', label: 'Фамилия' },
         { key: 'dob', label: 'Дата рождения'},
         { key: 'link-foto', label: 'Фото'},
+        { key: 'prof', label: 'Профессия'},
         { key: 'delete', label: ''},
       ],
       fieldsProf: [
         { key: 'index', label: '№' },
         { key: 'profession', label: 'Профессия' },
-        { key: 'charge', label: 'Обязанности' }
+        { key: 'charge', label: 'Обязанности' },
+        { key: 'del', label: '' }
       ],
       textSearch: '',
       usersObjFilter: this.$root.users,
@@ -148,15 +198,15 @@ export default {
       newProf: '',
       newCharge:'',
       newChargeBool: false,
-      add: ''
+      add: '',
+      errorText: false,
+      profPeopleArr: '',
+      selectedProf: ""
     }
   },
   watch: {
     textSearch: {
       handler: function() {
-        // console.log(this.textSearch)
-        // console.log(this.$root.users)
-        // console.log(this.textSearch)
         if (this.textSearch === ""){
           this.usersObjFilter = this.usersObj
         }
@@ -186,6 +236,13 @@ export default {
         }
       },
       deep: true
+    },
+    profPeopleArr:{
+      handler: function() {
+        console.log("obn")
+        this.$root.$emit('bv::refresh::table', 'modal-prof-people-table')
+      },
+      deep: true
     }
   },
   methods: {
@@ -210,6 +267,10 @@ export default {
     profAdd: function() {
       this.$bvModal.show('modal-prof-add')
     },
+    profPeople: function(item){
+      this.$bvModal.show('modal-prof-people')
+      this.profPeopleArr = item
+    },
     personSave: function() {
       this.usersObj.push({
         name: { first: this.newFirst, last: this.newLast },
@@ -217,14 +278,30 @@ export default {
         picture: { thumbnail: this.newLink }
       })
     },
-    profSave: function() {
-      if (this.professionСheck(this.profArr[0].profession, this.newProf) == false){
-        this.profArr[0].profession.push({
-          title: this.newProf,
-          charge: [{ title: "" }]
-        })
+    profSave: function(obj, val) {
+      if(obj.profession === undefined){
+        obj.profession = [
+          {
+            title: val
+          }
+        ]
         this.newProf = ''
+        this.errorText = false
       }
+      else {
+        if (this.professionСheck(obj.profession, val) == false){
+          obj.profession.push({
+            title: val,
+            charge: [{ title: "" }]
+          })
+          this.newProf = ''
+          this.errorText = false
+        }
+        else {
+          this.errorText = true
+        }
+      }
+      console.log(obj)
     },
     professionСheck: function (obj, val) {
       let flagProf = false
@@ -255,10 +332,42 @@ export default {
       this.add = item.title
       this.newChargeBool = true
     }
+  },
+  mounted() {
+    this.$root.$on('bv::modal::hide', () => {
+      this.errorText = false
+    })
   }
 }
 </script>
 
 <style>
-
+  .head{
+    display: flex;
+    margin: 20px 10px;
+  }
+  .head__but{
+    display: flex;
+    justify-content: space-between;
+    width: 130px;
+    padding-left: 10px;
+  }
+  .charge__add-input{
+    display: flex;
+    align-items: baseline;
+    position: relative;
+  }
+  .charge__add-input-icon{
+    position: absolute;
+    top: calc(50% - 8px);
+    right: 5px;
+  }
+  .table__but{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+  .modal__btn-add{
+    margin: 10px 0;
+  }
 </style>
