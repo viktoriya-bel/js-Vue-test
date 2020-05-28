@@ -2,7 +2,6 @@
   <div id="app">
     <div class="head">
       <b-form-input v-model="textSearch" placeholder="Поиск"></b-form-input>
-<!--      <div class="mt-2">Value: {{ textSearch }}</div>-->
       <div class="head__but">
         <b-button pill variant="primary" v-on:click="personAdd()"><b-icon-person-plus-fill></b-icon-person-plus-fill></b-button>
         <b-button pill variant="primary" v-on:click="profAdd()"><b-icon-bag-fill></b-icon-bag-fill></b-button>
@@ -49,7 +48,6 @@
 
 
         <template v-slot:cell(delete)="date" class="table__but">
-<!--          {{ date.item }}-->
           <b-button pill variant="outline-primary" v-on:click="editBool=false" v-if="editFirst === date.index && editBool === true">Сохранить</b-button>
           <b-icon-pencil v-on:click="editAll(date.index)" v-else></b-icon-pencil>
           <b-icon-trash-fill v-on:click="deleteAll(date.item, usersObjFilter)"></b-icon-trash-fill>
@@ -57,10 +55,7 @@
 
       </b-table>
     </div>
-<!--    <div>{{ profArr[0].profession }}</div>-->
-<!--    <div>{{ usersObjFilter }}</div>-->
-<!--    <img alt="Vue logo" src="./assets/logo.png">-->
-<!--    <HelloWorld msg="Welcome to Your Vue.js App"/>-->
+
     <b-modal id="modal-person-add" title="Добавить человека" @ok="personSave()">
       <label for="newFirst">Имя</label>
       <b-input type="text" id="newFirst" v-model="newFirst"></b-input>
@@ -104,7 +99,7 @@
       <div class="errorText" v-if="errorText">Такая запись уже есть!</div>
     </b-modal>
     <b-modal id="modal-prof-people" title="Добавить профессию">
-      <b-table id="modal-prof-people-table" small :fields="fieldsProf" :items="profPeopleArr.profession" responsive="sm"  show-empty head-variant='dark'>
+      <b-table id="modal-prof-people-table" small :fields="fieldsProf" items="profPeopleArr.profession" responsive="sm"  show-empty head-variant='dark'>
         <div> </div>
         <template v-slot:cell(index)="date">
           {{  date.index + 1 }}
@@ -140,12 +135,10 @@
 </template>
 
 <script>
-// import HelloWorld from './components/HelloWorld.vue'
 import { BIconTrashFill, BIconPencil, BIconPersonPlusFill, BIconBagFill, BIconPlusSquare, BIconCheckCircle, BIconWindow } from 'bootstrap-vue'
 export default {
   name: 'App',
   components: {
-    // HelloWorld
     BIconTrashFill,
     BIconPencil,
     BIconPersonPlusFill,
@@ -239,7 +232,7 @@ export default {
     },
     profPeopleArr:{
       handler: function() {
-        console.log("obn")
+        console.log("obпn")
         this.$root.$emit('bv::refresh::table', 'modal-prof-people-table')
       },
       deep: true
@@ -278,7 +271,7 @@ export default {
         picture: { thumbnail: this.newLink }
       })
     },
-    profSave: function(obj, val) {
+    profSave: function(obj,  val) {
       if(obj.profession === undefined){
         obj.profession = [
           {
